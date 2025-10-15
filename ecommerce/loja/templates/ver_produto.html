@@ -1,0 +1,35 @@
+{% extends 'base.html'%}
+{% load static %}
+
+{% block body %}
+
+<h3>{{ produto.nome }}</h3>
+
+{% if tem_estoque %}
+
+<img src="{{ produto.imagem.url }}", width="300", height="200">
+<p>Produto: {{produto.nome}}</p>
+<p>Preço: {{produto.preco}}</p>
+
+<p>Selecione o tamanho:</p>
+{% if tamanhos %}
+<form method="POST" action="{% url 'adicionar_carrinho' produto.id %}">
+    {% csrf_token %}
+    {% for tamanho in tamanhos %}
+    <input type="radio" name="tamanho" value="{{ tamanho }}">
+    <label for="{{ tamanho }}">{{ tamanho }}</label>
+    {% endfor %}
+
+    <button type="submit">Adicionar ao carrinho</button>
+</form>
+{% endif %}
+
+
+
+{% else %}
+
+<p>Produto indisponivel</p>
+
+{% endif %}
+
+{% endblock %}
