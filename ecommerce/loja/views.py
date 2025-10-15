@@ -303,50 +303,6 @@ def fazer_login(request):
     context = {"erro": erro}
     return render(request, 'usuario/login.html', context)
 
-# def criar_conta(request):
-    erro = None
-    if request.user.is_authenticated:
-        return redirect('loja')
-    if request.method == "POST":
-        dados = request.POST.dict()
-        if "email" in dados and "senha" in dados and "confirmacao_senha" in dados:
-            # criar conta
-            email = dados.get("email")
-            senha = dados.get("senha")
-            confirmacao_senha = dados.get("confirmacao_senha")
-            try:
-                validate_email(email)
-            except ValidationError:
-                erro = "email_invalido"
-            if senha == confirmacao_senha:
-                # criar a conta
-                usuario, criado = User.objects.get_or_create(username=email, email=email)
-                if not criado:
-                    erro = "usuario_existente"
-                else:
-                    usuario.set_password(senha)
-                    usuario.save()
-                    # usuario fazer login
-                    usuario = authenticate(request, username=email, password=senha)
-                    login(request, usuario)
-                    # criar o cliente
-                    # verificar se existe algum cliente nos cookies do navegador
-                    if request.COOKIES.get("id_sessao"):
-                        id_sessao = request.COOKIES.get("id_sessao")
-                        cliente, criado = Cliente.objects.get_or_create(id_sessao=id_sessao)
-                    else:
-                        cliente, criado = Cliente.objects.get_or_create(email=email)
-                    cliente.usuario = usuario
-                    cliente.email = email
-                    cliente.save()
-                    return redirect('loja')
-            else:
-                erro = "senhas_incopativeis"
-        else:
-            erro = "preenchimento"
-    context = {"erro": erro}
-    return render(request, "usuario/criar_conta.html", context)
-
 def criar_conta(request):
     erro = None
     if request.user.is_authenticated:
