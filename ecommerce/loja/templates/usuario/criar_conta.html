@@ -1,0 +1,63 @@
+{% extends 'base.html'%}
+{% load static %}
+
+{% block body %}
+    <main class="principal">
+      <section class="conta">
+        <div class="conta__container">
+          <div class="checkout__titulos">
+            <p class="checkout__titulo">Informe seus dados para criar uma conta</p>
+          </div>
+
+            {% if erro == "preenchimento" %}
+                <p>Preencha todas as informações corretamente!</p>
+            {% endif %}
+
+            {% if erro == "email_invalido" %}
+                <p>E-mail informado está inválido, tente novamente!</p>
+            {% endif %}
+
+            {% if erro == "usuario_existente" %}
+                <p>Já existe um usuário com esse E-mail, <a href="{% url 'fazer_login' %}">Faça Login</a></p>
+            {% endif %}
+
+            {% if erro == "senhas_incopativeis" %}
+                <p>As senhas são diferentes, tente novamente!</p>
+            {% endif %}
+
+            {% if erro == "email_obrigatorio" %}
+            <p>Email obrigatorio</p>
+            {% endif %}
+
+          <form
+            class="conta__form"
+            action="{% url 'criar_conta' %}"
+            method="post"
+          >
+          {% csrf_token %}
+            <div class="conta__item conta__item--email">
+              <label for="email">E-mail</label>
+              <input name="email" type="email" placeholder="Insira seu E-mail" >
+            </div>
+
+            <div class="conta__item ">
+              <label for="senha">Senha</label>
+              <input name="senha" type="password" placeholder="Insira sua Senha" />
+            </div>
+
+            <div class="conta__item ">
+              <label for="confirmacao_senha">Confirme sua Senha</label>
+              <input name="confirmacao_senha" type="password" placeholder="Confirme sua Senha" />
+            </div>
+
+            <button class="subtotal__botao" type="submit">
+              Criar Conta
+            </button>
+          </form>
+            <a href="{% url 'fazer_login' %}">Ja tem uma conta? Faça Login</a>
+        </div>
+
+      </section>
+    </main>
+
+{% endblock %}

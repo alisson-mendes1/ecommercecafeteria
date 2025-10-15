@@ -2,5 +2,42 @@
 {% load static %}
 
 {% block body %}
-<h3>Login</h3>
+    <main class="principal">
+      <section class="conta">
+        <div class="conta__container">
+          <div class="checkout__titulos">
+            <p class="checkout__titulo">Fazer Login</p>
+          </div>
+
+            {% if erro %}
+            <h4>Informações inválidas, tente novamente ou crie uma conta</h4>
+            {% endif %}
+
+          <form
+            class="conta__form"
+            action="{% url 'fazer_login' %}"
+            method="post"
+          >
+          {% csrf_token %}
+            <div class="conta__item conta__item--email">
+              <label for="email">E-mail</label>
+              <input name="email" type="email" placeholder="Insira seu E-mail" >
+            </div>
+
+            <div class="conta__item conta__item--email">
+              <label for="senha">Senha</label>
+              <input name="senha" type="password" placeholder="Insira sua Senha" />
+            </div>
+
+            <button class="subtotal__botao" type="submit">
+              Entrar
+            </button>
+          </form>
+          <a href="{% url 'criar_conta' %}">Não tem uma conta? Clique aqui para criar</a>
+          <a href="{% url 'password_reset' %}">Esqueci minha senha</a>
+        </div>
+
+      </section>
+    </main>
+    
 {% endblock %}

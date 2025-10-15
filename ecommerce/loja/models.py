@@ -15,6 +15,7 @@ class Cliente(models.Model):
 
 class Categoria(models.Model): # Categorias ex: bebidas quentes, geladas, misturas
     nome = models.CharField(max_length=200, null=True, blank=True)
+    slug = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return str(self.nome)
@@ -23,7 +24,8 @@ class Categoria(models.Model): # Categorias ex: bebidas quentes, geladas, mistur
 class Tipo(models.Model): # Tipos ex: (cafe preto, expresso, cappuchino, chocolate quente)
                           #           (cha gelado, refrigerante zero, suco natural, cafe sem açucar, com leite)
     nome = models.CharField(max_length=200, null=True, blank=True)
-
+    slug = models.CharField(max_length=200, null=True, blank=True)
+    
     def __str__(self):
         return str(self.nome)
 
@@ -38,6 +40,11 @@ class Produto(models.Model):
     
     def __str__(self):
         return f"Nome: {self.nome}, Categoria: {self.categoria}, Tipo: {self.tipo}, Preço: {self.preco}"
+    
+    def total_vendas(self):
+        itens = ItensPedido.objects.filter(pedido__status_pedido=True, item_estoque__produto=self.id)
+        total = sum([item.quantidade for item in itens])
+        return total
 
 class Tamanho(models.Model):
     tamanho = models.CharField(max_length=200, null=True, blank=True)
@@ -61,6 +68,9 @@ class Endereco(models.Model):
     estado = models.CharField(max_length=200, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.SET_NULL)
 
+    def __str__(self):
+        return f"{self.cliente} - {self.rua}-{self.numero}, Cep:{self.cep}, {self.cidade}-{self.estado}"
+
 class Pedido(models.Model):
     cliente =  models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.SET_NULL)
     data_finalizacao = models.DateTimeField(null=True, blank=True)
@@ -83,17 +93,28 @@ class Pedido(models.Model):
         preco = sum([item.preco_total for item in itens_pedido])
         return preco
     
+    @property
+    def itens(self):
+        itens_pedido = ItensPedido.objects.filter(pedido__id=self.id)
+        return itens_pedido
+
+    
 class ItensPedido(models.Model):
     item_estoque = models.ForeignKey(ItemEstoque, null=True, blank=True, on_delete=models.SET_NULL)
     quantidade = models.IntegerField(default=0)
     pedido = models.ForeignKey(Pedido, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return f"Id_pedido: {self.pedido.id} - Produto: {self.item_estoque.produto} - {self.item_estoque.tamanho}"
+        return f"Id_pedido: {self.pedido.id} - Produto: {self.item_estoque.produto.nome} - {self.item_estoque.tamanho}"
 
     @property
     def preco_total(self):
         return self.quantidade * self.item_estoque.produto.preco
+    
+class Pagamento(models.Model):
+    id_pagamento = models.CharField(max_length=400)
+    pedido = models.ForeignKey(Pedido, null=True, blank=True, on_delete=models.SET_NULL)
+    aprovado = models.BooleanField(default=False)
 
 class Banner(models.Model):
     imagem = models.ImageField(null=True, blank=True)
